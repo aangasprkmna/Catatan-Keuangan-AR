@@ -1,8 +1,9 @@
 {
   "version": "2.5.4",
   "title": "Pembaruan Catatan Keuangan AR",
+  "apkUrl": "https://aangasprkmna.github.io/Catatan-Keuangan-AR/Catatan-Keuangan-AR-v2.5.4.apk",
   "notes": [
     "Menghapus sisa label Kata Sandi Sidik Jari di halaman Pengaturan",
-    "Merapikan seluruh label Pengaturan agar sesuai fungsinya"
+    "Mendukung unduh otomatis APK versi terbaru dari GitHub"
   ]
 }

@@ -9846,11 +9846,28 @@
             }
           }
 
-          setStep(100, 'Memasang versi terbaru...');
-          setTimeout(() => {
-            const cleanUrl = window.location.origin + window.location.pathname;
-            window.location.replace(`${cleanUrl}?v=${encodeURIComponent(targetVer)}`);
-          }, 450);
+          const apkUrl = pendingUpdateInfo && typeof pendingUpdateInfo.apkUrl === 'string' ? pendingUpdateInfo.apkUrl.trim() : '';
+          if (apkUrl && /^https?:\/\//i.test(apkUrl)) {
+            setStep(100, 'Mengunduh file APK versi terbaru...');
+            const a = document.createElement('a');
+            a.href = apkUrl;
+            a.download = `Catatan-Keuangan-AR-v${targetVer}.apk`;
+            a.target = '_blank';
+            a.rel = 'noopener';
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            setTimeout(() => {
+              const cleanUrl = window.location.origin + window.location.pathname;
+              window.location.replace(`${cleanUrl}?v=${encodeURIComponent(targetVer)}`);
+            }, 1200);
+          } else {
+            setStep(100, 'Memasang versi terbaru...');
+            setTimeout(() => {
+              const cleanUrl = window.location.origin + window.location.pathname;
+              window.location.replace(`${cleanUrl}?v=${encodeURIComponent(targetVer)}`);
+            }, 450);
+          }
         } catch (err) {
           window.location.reload();
         }
