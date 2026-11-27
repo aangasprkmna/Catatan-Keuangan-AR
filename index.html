@@ -9784,7 +9784,27 @@
       // AUTO-UPDATE SYSTEM (Checks ./version.json on GitHub Pages)
       // ============================================================
       const APP_VERSION = '2.6.1';
+      const INSTALLED_APK_VER_KEY = 'catatan_keuangan_installed_apk_ver_v1';
       let pendingUpdateInfo = null;
+
+      function getInstalledApkVersion() {
+        try {
+          const saved = safeReadStorage(INSTALLED_APK_VER_KEY);
+          if (saved) return saved;
+          // Existing user upgrading from pre-tracker APK (e.g. 2.5.4)
+          const hasExistingData = Boolean(
+            safeReadStorage(STORAGE_KEY) || safeReadStorage(PREFS_KEY) || safeReadStorage(THEME_KEY)
+          );
+          if (hasExistingData) {
+            safeWriteStorage(INSTALLED_APK_VER_KEY, '2.5.4');
+            return '2.5.4';
+          }
+          safeWriteStorage(INSTALLED_APK_VER_KEY, APP_VERSION);
+          return APP_VERSION;
+        } catch (e) {
+          return APP_VERSION;
+        }
+      }
 
       function compareSemver(a, b) {
         const pa = String(a || '0').replace(/^v/i, '').split('.').map(n => parseInt(n, 10) || 0);
@@ -9810,7 +9830,8 @@
         if (!modal) return;
 
         if (titleEl) titleEl.textContent = info.title || 'Pembaruan Tersedia';
-        if (subEl) subEl.textContent = `Versi ${APP_VERSION} → Versi ${info.version}`;
+        const curVer = getInstalledApkVersion();
+        if (subEl) subEl.textContent = `Versi ${curVer} → Versi ${info.version}`;
         const notes = Array.isArray(info.notes) && info.notes.length
           ? info.notes
           : ['Pembaruan fitur terbaru & peningkatan performa.'];
@@ -9827,7 +9848,9 @@
           const res = await fetch(`./version.json?t=${Date.now()}`, { cache: 'no-store' });
           if (!res.ok) return;
           const data = await res.json();
-          if (data && data.version && compareSemver(data.version, APP_VERSION) > 0) {
+          const curInstalled = getInstalledApkVersion();
+          const effectiveVer = compareSemver(curInstalled, APP_VERSION) < 0 ? curInstalled : APP_VERSION;
+          if (data && data.version && compareSemver(data.version, effectiveVer) > 0) {
             showAppUpdateModal(data);
           }
         } catch (e) {}
@@ -9865,6 +9888,7 @@
           }
 
           const apkUrl = pendingUpdateInfo && typeof pendingUpdateInfo.apkUrl === 'string' ? pendingUpdateInfo.apkUrl.trim() : '';
+          try { safeWriteStorage(INSTALLED_APK_VER_KEY, targetVer); } catch (e) {}
           if (apkUrl && /^https?:\/\//i.test(apkUrl)) {
             setStep(100, 'Mengunduh file APK versi terbaru...');
             const a = document.createElement('a');
