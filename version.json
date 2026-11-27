@@ -1,9 +1,8 @@
 {
-  "version": "2.5.4",
+  "version": "2.6.1",
   "title": "Pembaruan Catatan Keuangan AR",
-  "apkUrl": "https://aangasprkmna.github.io/Catatan-Keuangan-AR/Catatan-Keuangan-AR-v2.5.4.apk",
+  "apkUrl": "https://aangasprkmna.github.io/Catatan-Keuangan-AR/Catatan-Keuangan-AR-v2.6.1.apk",
   "notes": [
-    "Menghapus sisa label Kata Sandi Sidik Jari di halaman Pengaturan",
-    "Mendukung unduh otomatis APK versi terbaru dari GitHub"
+    "Perbaikan tombol Kembali HP di dalam fitur Konverter & Riwayat Kalkulator agar kembali ke daftar lalu ke Beranda (tidak langsung memunculkan Keluar aplikasi)"
   ]
 }

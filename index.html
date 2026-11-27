@@ -3624,7 +3624,7 @@
       </div>
     </div>
 
-    <div class="drawer-footer">Catatan Keuangan AR • Versi 2.5.4</div>
+    <div class="drawer-footer">Catatan Keuangan AR • Versi 2.6.1</div>
   </aside>
 
   <!-- Modal: Add / Edit Transaction -->
@@ -5299,6 +5299,7 @@
       }
 
       let historyPushedSubpage = false;
+      let historyPushedToolDetail = false;
 
       // Navigation (integrated with History API so Android Back button returns to Beranda first)
       function switchView(viewName, fromPopState) {
@@ -5381,9 +5382,8 @@
           }
           return;
         }
-        // If inside a specific converter detail, return to converter grid first
-        if (ui.view === 'tools' && typeof closeConverterDetailIfOpen === 'function' && closeConverterDetailIfOpen()) {
-          try { history.pushState({ view: 'tools' }, '', '#tools'); historyPushedSubpage = true; } catch (e) {}
+        // If inside a specific converter detail or calculator history, return to tools grid first
+        if (ui.view === 'tools' && typeof closeConverterDetailIfOpen === 'function' && closeConverterDetailIfOpen(true)) {
           return;
         }
         // If on any sub-page, return cleanly to Beranda (dashboard)
@@ -7809,9 +7809,9 @@
         }, 60000);
       }
 
-      function closeConverterDetailIfOpen() {
+      function closeConverterDetailIfOpen(fromPopState) {
         if (toolsState.calcHistoryOpen) {
-          closeCalcHistory();
+          closeCalcHistory(fromPopState);
           return true;
         }
         if (!toolsState.activeConverter) return false;
@@ -7821,6 +7821,12 @@
         document.getElementById('convMenuWrap').style.display = 'block';
         document.getElementById('toolsModeTabs').style.display = 'grid';
         syncTopNavVisibility();
+        if (fromPopState) {
+          historyPushedToolDetail = false;
+        } else if (historyPushedToolDetail) {
+          historyPushedToolDetail = false;
+          try { history.back(); } catch (e) {}
+        }
         return true;
       }
 
@@ -8366,15 +8372,24 @@
         toolsState.calcHistSelectedIds.clear();
         document.getElementById('calcMainCard').style.display = 'none';
         document.getElementById('calcHistoryCard').style.display = 'block';
+        if (!historyPushedToolDetail) {
+          try { history.pushState({ view: 'tools', hist: true }, '', '#tools-history'); historyPushedToolDetail = true; } catch (e) {}
+        }
         renderCalcHistoryList();
       }
 
-      function closeCalcHistory() {
+      function closeCalcHistory(fromPopState) {
         toolsState.calcHistoryOpen = false;
         toolsState.calcHistSelectMode = false;
         toolsState.calcHistSelectedIds.clear();
         document.getElementById('calcHistoryCard').style.display = 'none';
         document.getElementById('calcMainCard').style.display = 'block';
+        if (fromPopState) {
+          historyPushedToolDetail = false;
+        } else if (historyPushedToolDetail) {
+          historyPushedToolDetail = false;
+          try { history.back(); } catch (e) {}
+        }
         renderCalculator();
       }
 
@@ -8772,6 +8787,9 @@
         document.getElementById('toolsModeTabs').style.display = 'none';
         document.getElementById('convMenuWrap').style.display = 'none';
         document.getElementById('convDetailWrap').style.display = 'block';
+        if (!historyPushedToolDetail) {
+          try { history.pushState({ view: 'tools', conv: type }, '', `#tools-${type}`); historyPushedToolDetail = true; } catch (e) {}
+        }
         syncTopNavVisibility();
 
         if (type === 'currency') {
@@ -9765,7 +9783,7 @@
       // ============================================================
       // AUTO-UPDATE SYSTEM (Checks ./version.json on GitHub Pages)
       // ============================================================
-      const APP_VERSION = '2.5.4';
+      const APP_VERSION = '2.6.1';
       let pendingUpdateInfo = null;
 
       function compareSemver(a, b) {
