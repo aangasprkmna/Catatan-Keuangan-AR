@@ -1,9 +1,8 @@
 {
-  "version": "2.5.3",
+  "version": "2.5.4",
   "title": "Pembaruan Catatan Keuangan AR",
   "notes": [
-    "Menghilangkan tulisan Mode Offline pada menu samping",
-    "Menghilangkan fitur Kata Sandi Sidik Jari di Pengaturan",
-    "Peningkatan stabilitas & tampilan versi 2.5.3"
+    "Menghapus sisa label Kata Sandi Sidik Jari di halaman Pengaturan",
+    "Merapikan seluruh label Pengaturan agar sesuai fungsinya"
   ]
 }

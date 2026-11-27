@@ -3624,7 +3624,7 @@
       </div>
     </div>
 
-    <div class="drawer-footer">Catatan Keuangan AR • Versi 2.5.3</div>
+    <div class="drawer-footer">Catatan Keuangan AR • Versi 2.5.4</div>
   </aside>
 
   <!-- Modal: Add / Edit Transaction -->
@@ -6466,13 +6466,13 @@
         // All 17 Pengaturan item labels & subtitles
         setAllTxt('#view-app-settings .pref-label', [
           'Format Tanggal', 'Format waktu', 'Format mata uang', 'Tampilkan tanggal di setiap entri',
-          'Bahasa', 'Mode Gelap', 'Kata Sandi Sidik Jari', 'Pengaturan Kata Sandi',
+          'Bahasa', 'Mode Gelap', 'Pengaturan Kata Sandi',
           'Saldo sebelumnya', 'Tampilkan saldo setelah setiap transaksi', 'Tambahkan deskripsi / kategori',
           'Saran catatan', 'Tampilkan waktu dalam laporan', 'Tetapkan hari pertama tahun ini',
           'Tetapkan hari pertama setiap bulan', 'Tetapkan hari pertama dalam seminggu', 'Tetapkan periode default'
         ], [
           'Date Format', 'Time Format', 'Currency Format', 'Show date on each entry',
-          'Language', 'Dark Mode', 'Fingerprint Lock', 'PIN Password',
+          'Language', 'Dark Mode', 'PIN Password',
           'Carry-over Balance', 'Show balance after each entry', 'Show description / category',
           'Note Suggestions', 'Show time in reports', 'First month of the year',
           'First day of each month', 'First day of the week', 'Default period'
@@ -6484,7 +6484,6 @@
           'Perlihatkan tanggal pada daftar transaksi',
           'Bahasa tampilan aplikasi',
           'Tema gelap nyaman di mata',
-          'Buka kunci cepat (otomatis cadangan PIN)',
           (prefs.pinEnabled && prefs.pinCode) ? 'Aktif — PIN 4 digit terpasang' : 'Kunci aplikasi dengan PIN 4 digit',
           'Hitung sisa saldo periode sebelumnya di Saldo Bersih',
           'Tampilkan sisa saldo berjalan pada tiap transaksi',
@@ -6502,7 +6501,6 @@
           'Display date on transaction list items',
           'Application display language',
           'Comfortable dark theme',
-          'Quick unlock (with PIN fallback)',
           (prefs.pinEnabled && prefs.pinCode) ? 'Active — 4-digit PIN set' : 'Lock app with a 4-digit PIN',
           'Include prior period balance in Net Balance',
           'Show running balance under each entry',
@@ -9767,7 +9765,7 @@
       // ============================================================
       // AUTO-UPDATE SYSTEM (Checks ./version.json on GitHub Pages)
       // ============================================================
-      const APP_VERSION = '2.5.3';
+      const APP_VERSION = '2.5.4';
       let pendingUpdateInfo = null;
 
       function compareSemver(a, b) {
