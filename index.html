@@ -3081,21 +3081,6 @@
             </div>
           </div>
 
-          <!-- 7. Kata Sandi Sidik Jari (Independen tanpa wajib PIN) -->
-          <div class="pref-item">
-            <div class="pref-left">
-              <div class="pref-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12C2 6.5 6.5 2 12 2a10 10 0 0 1 8 4"/><path d="M5 19.5C5.5 18 6 15 6 12c0-.7.12-1.37.34-2"/><path d="M17.29 21.02c.12-.6.43-2.3.5-3.02"/><path d="M12 10a2 2 0 0 0-2 2c0 1.02-.1 2.51-.26 4"/><path d="M8.65 22c.21-.66.45-1.32.57-2"/><path d="M14 13.12c0 2.38 0 6.38-1 8.88"/><path d="M2 16h.01"/><path d="M21.8 16c.2-2 .131-5.354 0-6"/><path d="M9 6.8a6 6 0 0 1 9 5.2c0 .47 0 1.17-.02 2"/></svg></div>
-              <div class="pref-text">
-                <div class="pref-label">Kata Sandi Sidik Jari</div>
-                <div class="pref-sub" id="prefBiometricSub">Kunci aplikasi langsung dengan sidik jari</div>
-              </div>
-            </div>
-            <div class="pref-right">
-              <button type="button" class="btn btn-secondary btn-sm" id="btnLockBioNow" style="display:none;">Uji</button>
-              <input type="checkbox" class="pref-check" id="prefBiometric" />
-            </div>
-          </div>
-
           <!-- 8. Pengaturan Kata Sandi (PIN) -->
           <div class="pref-item">
             <div class="pref-left">
@@ -3556,7 +3541,7 @@
       </div>
       <div>
         <div style="font-weight:700; font-size:0.98rem;" id="drawerUserTitle">Catatan Keuangan AR</div>
-        <div style="font-size:0.78rem; opacity:0.9;" id="drawerUserSub">Kontrol cepat • Mode Offline</div>
+        <div style="font-size:0.78rem; opacity:0.9;" id="drawerUserSub">Kontrol cepat</div>
         <button type="button" class="drawer-google-btn" id="btnOpenGoogleAccount">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21.35 11.1h-9.18v2.98h5.27c-.23 1.24-.93 2.29-1.98 2.99v2.48h3.2c1.87-1.72 2.95-4.26 2.95-7.28 0-.4-.04-.79-.26-1.17z"/><path d="M12.17 22c2.67 0 4.91-.88 6.55-2.39l-3.2-2.48c-.89.6-2.02.95-3.35.95-2.58 0-4.76-1.74-5.54-4.08H3.33v2.56A9.99 9.99 0 0 0 12.17 22z"/><path d="M6.63 14c-.2-.6-.31-1.24-.31-1.9s.11-1.3.31-1.9V7.64H3.33A9.99 9.99 0 0 0 2.17 12.1c0 1.61.39 3.14 1.16 4.46L6.63 14z"/><path d="M12.17 6.12c1.45 0 2.75.5 3.78 1.48l2.83-2.83C17.07 3.18 14.84 2.2 12.17 2.2A9.99 9.99 0 0 0 3.33 7.64l3.3 2.56c.78-2.34 2.96-4.08 5.54-4.08z"/></svg>
           <span id="drawerGoogleBtnLabel">Masuk dengan Google</span>
@@ -3639,7 +3624,7 @@
       </div>
     </div>
 
-    <div class="drawer-footer">Catatan Keuangan AR • Versi 1.3.0</div>
+    <div class="drawer-footer">Catatan Keuangan AR • Versi 2.5.3</div>
   </aside>
 
   <!-- Modal: Add / Edit Transaction -->
@@ -6454,7 +6439,7 @@
 
         // Side Drawer items
         setTxt('#drawerUserTitle', 'Catatan Keuangan AR', 'Finance Notes AR');
-        setTxt('#drawerUserSub', 'Kontrol cepat • Mode Offline', 'Quick controls • Offline Mode');
+        setTxt('#drawerUserSub', 'Kontrol cepat', 'Quick controls');
         setAllTxt('.drawer-section-label', ['Tindakan Cepat', 'Utilitas'], ['Quick Actions', 'Utilities']);
         setTxt('#qaHome span', 'Beranda', 'Home');
         setTxt('#qaSummary span', 'Ringkasan', 'Summary');
@@ -6552,9 +6537,7 @@
         document.getElementById('prefShowDateEntry').checked = Boolean(prefs.showDateEntry);
         document.getElementById('prefLanguage').value = prefs.language;
         document.getElementById('prefDarkMode').checked = Boolean(prefs.darkMode);
-        document.getElementById('prefBiometric').checked = Boolean(prefs.biometric);
-        const btnBio = document.getElementById('btnLockBioNow');
-        if (btnBio) btnBio.style.display = prefs.biometric ? 'inline-flex' : 'none';
+        prefs.biometric = false;
         document.getElementById('prefPinEnabled').checked = Boolean(prefs.pinEnabled && prefs.pinCode);
         document.getElementById('btnLockNow').style.display = (prefs.pinEnabled && prefs.pinCode) ? 'inline-flex' : 'none';
         document.getElementById('prefPinSub').textContent = (prefs.pinEnabled && prefs.pinCode)
@@ -6768,79 +6751,7 @@
           }
         }
 
-        // Disable biometric checkbox automatically if device/WebView does not support real hardware biometrics
-        isHardwareBiometricSupported().then(supported => {
-          const bioChk = document.getElementById('prefBiometric');
-          const bioSub = document.getElementById('prefBiometricSub');
-          if (!supported) {
-            if (bioChk) { bioChk.disabled = true; bioChk.checked = false; }
-            if (bioSub) bioSub.textContent = 'Tidak tersedia — perangkat/WebView ini tidak mendukung sensor biometrik web';
-            if (prefs.biometric) {
-              prefs.biometric = false;
-              prefs.biometricCredId = '';
-              savePrefs();
-            }
-          }
-        });
-
-        // Biometric toggle: enrolls REAL hardware biometric credential via WebAuthn
-        document.getElementById('prefBiometric').addEventListener('change', async (e) => {
-          const wantOn = e.target.checked;
-          const bioSub = document.getElementById('prefBiometricSub');
-          if (!wantOn) {
-            prefs.biometric = false;
-            prefs.biometricCredId = '';
-            savePrefs();
-            populatePrefsUI();
-            return;
-          }
-
-          const supported = await isHardwareBiometricSupported();
-          if (!supported) {
-            e.target.checked = false;
-            if (bioSub) bioSub.textContent = 'Sensor biometrik tidak didukung di perangkat/tampilan ini';
-            return;
-          }
-
-          try {
-            const challenge = new Uint8Array(32);
-            crypto.getRandomValues(challenge);
-            const userId = new Uint8Array(16);
-            crypto.getRandomValues(userId);
-
-            const cred = await navigator.credentials.create({
-              publicKey: {
-                challenge,
-                rp: { name: 'Catatan Keuangan AR' },
-                user: { id: userId, name: 'pengguna@catatankeuangan', displayName: 'Pengguna Catatan Keuangan AR' },
-                pubKeyCredParams: [{ type: 'public-key', alg: -7 }, { type: 'public-key', alg: -257 }],
-                authenticatorSelection: {
-                  authenticatorAttachment: 'platform',
-                  userVerification: 'required'
-                },
-                timeout: 60000
-              }
-            });
-
-            if (cred && cred.rawId) {
-              prefs.biometric = true;
-              prefs.biometricCredId = bufToBase64(cred.rawId);
-              savePrefs();
-              populatePrefsUI();
-              if (bioSub) bioSub.textContent = 'Aktif — terhubung ke sensor sidik jari perangkat';
-            } else {
-              e.target.checked = false;
-            }
-          } catch (err) {
-            e.target.checked = false;
-            prefs.biometric = false;
-            prefs.biometricCredId = '';
-            savePrefs();
-            if (bioSub) bioSub.textContent = 'Verifikasi sidik jari dibatalkan atau tidak didukung di WebView ini';
-          }
-        });
-
-        document.getElementById('btnLockBioNow').addEventListener('click', lockAppWithPin);
+        prefs.biometric = false;
 
         // PIN toggle & Setup modal
         const pinModal = document.getElementById('pinSetupModal');
@@ -9724,7 +9635,7 @@
         } else {
           const isEn = prefs.language === 'en';
           if (titleEl) titleEl.textContent = isEn ? 'Finance Notes AR' : 'Catatan Keuangan AR';
-          if (subEl) subEl.textContent = isEn ? 'Quick controls • Offline Mode' : 'Kontrol cepat • Mode Offline';
+          if (subEl) subEl.textContent = isEn ? 'Quick controls' : 'Kontrol cepat';
           if (btnLbl) btnLbl.textContent = isEn ? 'Sign in with Google' : 'Masuk dengan Google';
           if (outPane) outPane.style.display = 'block';
           if (inPane) inPane.style.display = 'none';
@@ -9856,7 +9767,7 @@
       // ============================================================
       // AUTO-UPDATE SYSTEM (Checks ./version.json on GitHub Pages)
       // ============================================================
-      const APP_VERSION = '1.3.0';
+      const APP_VERSION = '2.5.3';
       let pendingUpdateInfo = null;
 
       function compareSemver(a, b) {
@@ -9966,7 +9877,7 @@
           navigator.serviceWorker.register('./sw.js').catch(() => {});
         });
       }
-      if ((prefs.pinEnabled && prefs.pinCode) || prefs.biometric) lockAppWithPin();
+      if (prefs.pinEnabled && prefs.pinCode) lockAppWithPin();
     })();
   </script>
 </body>

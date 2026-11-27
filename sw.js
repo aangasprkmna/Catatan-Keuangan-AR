@@ -1,4 +1,4 @@
-const CACHE_NAME = 'catatan-keuangan-ar-v1.3.0';
+const CACHE_NAME = 'catatan-keuangan-ar-v2.5.3';
 const APP_SHELL = ['./', './index.html', './manifest.json'];
 
 self.addEventListener('install', (event) => {

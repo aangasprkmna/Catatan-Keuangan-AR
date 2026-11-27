@@ -1,8 +1,9 @@
 {
-  "version": "1.3.0",
+  "version": "2.5.3",
   "title": "Pembaruan Catatan Keuangan AR",
   "notes": [
-    "Fitur Update Otomatis dalam aplikasi telah aktif",
-    "Login dengan Akun Google, Kalkulator Ilmiah & 12 Konverter real-time"
+    "Menghilangkan tulisan Mode Offline pada menu samping",
+    "Menghilangkan fitur Kata Sandi Sidik Jari di Pengaturan",
+    "Peningkatan stabilitas & tampilan versi 2.5.3"
   ]
 }
