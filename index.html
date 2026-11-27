@@ -9921,7 +9921,7 @@
         const btnInstall = document.getElementById('btnInstallUpdate');
         if (btnDismiss && modal) btnDismiss.addEventListener('click', () => modal.classList.remove('open'));
         if (btnInstall) btnInstall.addEventListener('click', performAutoUpdate);
-        setTimeout(checkForAppUpdate, 1800);
+        checkForAppUpdate();
       }
 
       bindGoogleAccount();
