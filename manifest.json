@@ -1,0 +1,9 @@
+{
+  "name": "Catatan Keuangan AR",
+  "short_name": "Catatan AR",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f4f6f9",
+  "theme_color": "#0f766e",
+  "orientation": "portrait"
+}

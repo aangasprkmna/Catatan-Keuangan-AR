@@ -4,6 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Catatan Keuangan AR — Aplikasi Offline</title>
+  <meta name="theme-color" content="#0f766e" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <link rel="manifest" href="manifest.json" />
   <style>
     :root {
       --bg: #f4f6f9;
@@ -529,6 +533,54 @@
       object-fit: cover;
       border: 2px solid var(--primary);
       flex-shrink: 0;
+    }
+    .update-badge-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #0f766e, #14b8a6);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 10px;
+      box-shadow: 0 8px 20px rgba(15, 118, 110, 0.3);
+    }
+    .update-notes-list {
+      margin: 10px 0 14px;
+      padding: 10px 12px 10px 26px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      font-size: 0.82rem;
+      color: var(--text);
+      line-height: 1.5;
+      text-align: left;
+    }
+    .update-progress-wrap {
+      display: none;
+      margin: 12px 0;
+    }
+    .update-progress-track {
+      width: 100%;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--border);
+      overflow: hidden;
+    }
+    .update-progress-fill {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, #0f766e, #14b8a6);
+      border-radius: 999px;
+      transition: width 0.35s ease;
+    }
+    .update-progress-txt {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--primary);
+      text-align: center;
+      margin-top: 6px;
     }
     .drawer-footer {
       padding: 12px 16px;
@@ -3587,7 +3639,7 @@
       </div>
     </div>
 
-    <div class="drawer-footer">Catatan Keuangan AR Offline • Versi 1.2</div>
+    <div class="drawer-footer">Catatan Keuangan AR • Versi 1.3.0</div>
   </aside>
 
   <!-- Modal: Add / Edit Transaction -->
@@ -3690,6 +3742,30 @@
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" id="btnCancelConfirm">Batal</button>
         <button type="button" class="btn btn-danger" id="btnOkConfirm">Ya, Lanjutkan</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Pembaruan Aplikasi Otomatis -->
+  <div class="modal-backdrop" id="appUpdateModal" role="dialog" aria-modal="true" aria-labelledby="appUpdateTitle">
+    <div class="modal" style="max-width:390px; background:var(--surface); border:1px solid var(--border); box-shadow:0 20px 50px rgba(0,0,0,0.32);">
+      <div class="modal-body" style="text-align:center; padding:22px 20px 18px;">
+        <div class="update-badge-icon" aria-hidden="true">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+        </div>
+        <div id="appUpdateTitle" style="font-weight:800; font-size:1.08rem; color:var(--text);">Pembaruan Tersedia</div>
+        <div id="appUpdateVerSub" style="font-size:0.82rem; font-weight:700; color:var(--primary); margin-top:3px;">Versi terbaru siap dipasang</div>
+        <ul id="appUpdateNotes" class="update-notes-list"></ul>
+        <div class="update-progress-wrap" id="appUpdateProgressWrap">
+          <div class="update-progress-track">
+            <div class="update-progress-fill" id="appUpdateProgressFill"></div>
+          </div>
+          <div class="update-progress-txt" id="appUpdateProgressTxt">Mengunduh pembaruan...</div>
+        </div>
+        <div id="appUpdateActions" style="display:grid; grid-template-columns:1fr 1.4fr; gap:8px; margin-top:6px;">
+          <button type="button" class="btn btn-secondary" id="btnDismissUpdate">Nanti</button>
+          <button type="button" class="btn btn-primary" id="btnInstallUpdate">Update Sekarang</button>
+        </div>
       </div>
     </div>
   </div>
@@ -9776,9 +9852,120 @@
 
       bindSummaryView();
       bindToolsView();
+
+      // ============================================================
+      // AUTO-UPDATE SYSTEM (Checks ./version.json on GitHub Pages)
+      // ============================================================
+      const APP_VERSION = '1.3.0';
+      let pendingUpdateInfo = null;
+
+      function compareSemver(a, b) {
+        const pa = String(a || '0').replace(/^v/i, '').split('.').map(n => parseInt(n, 10) || 0);
+        const pb = String(b || '0').replace(/^v/i, '').split('.').map(n => parseInt(n, 10) || 0);
+        const len = Math.max(pa.length, pb.length);
+        for (let i = 0; i < len; i++) {
+          const da = pa[i] || 0;
+          const db = pb[i] || 0;
+          if (da > db) return 1;
+          if (da < db) return -1;
+        }
+        return 0;
+      }
+
+      function showAppUpdateModal(info) {
+        pendingUpdateInfo = info;
+        const modal = document.getElementById('appUpdateModal');
+        const titleEl = document.getElementById('appUpdateTitle');
+        const subEl = document.getElementById('appUpdateVerSub');
+        const notesEl = document.getElementById('appUpdateNotes');
+        const progWrap = document.getElementById('appUpdateProgressWrap');
+        const actWrap = document.getElementById('appUpdateActions');
+        if (!modal) return;
+
+        if (titleEl) titleEl.textContent = info.title || 'Pembaruan Tersedia';
+        if (subEl) subEl.textContent = `Versi ${APP_VERSION} → Versi ${info.version}`;
+        const notes = Array.isArray(info.notes) && info.notes.length
+          ? info.notes
+          : ['Pembaruan fitur terbaru & peningkatan performa.'];
+        if (notesEl) notesEl.innerHTML = notes.map(n => `<li>${escapeHtml(n)}</li>`).join('');
+        if (progWrap) progWrap.style.display = 'none';
+        if (actWrap) actWrap.style.display = 'grid';
+        modal.classList.add('open');
+      }
+
+      async function checkForAppUpdate() {
+        if (navigator.onLine === false) return;
+        if (window.location.protocol !== 'https:' && window.location.hostname !== 'localhost') return;
+        try {
+          const res = await fetch(`./version.json?t=${Date.now()}`, { cache: 'no-store' });
+          if (!res.ok) return;
+          const data = await res.json();
+          if (data && data.version && compareSemver(data.version, APP_VERSION) > 0) {
+            showAppUpdateModal(data);
+          }
+        } catch (e) {}
+      }
+
+      async function performAutoUpdate() {
+        const progWrap = document.getElementById('appUpdateProgressWrap');
+        const progFill = document.getElementById('appUpdateProgressFill');
+        const progTxt = document.getElementById('appUpdateProgressTxt');
+        const actWrap = document.getElementById('appUpdateActions');
+        if (actWrap) actWrap.style.display = 'none';
+        if (progWrap) progWrap.style.display = 'block';
+
+        const setStep = (pct, msg) => {
+          if (progFill) progFill.style.width = pct + '%';
+          if (progTxt) progTxt.textContent = msg;
+        };
+
+        try {
+          const targetVer = (pendingUpdateInfo && pendingUpdateInfo.version) || String(Date.now());
+          setStep(25, 'Mengunduh pembaruan terbaru...');
+          await fetch(`./index.html?v=${encodeURIComponent(targetVer)}&t=${Date.now()}`, { cache: 'no-store' }).catch(() => {});
+
+          setStep(65, 'Membersihkan cache versi lama...');
+          if ('caches' in window) {
+            const keys = await caches.keys();
+            await Promise.all(keys.map(k => caches.delete(k)));
+          }
+          if ('serviceWorker' in navigator) {
+            const regs = await navigator.serviceWorker.getRegistrations();
+            for (let i = 0; i < regs.length; i++) {
+              try { await regs[i].update(); } catch (e) {}
+              if (regs[i].waiting) regs[i].waiting.postMessage({ type: 'SKIP_WAITING' });
+            }
+          }
+
+          setStep(100, 'Memasang versi terbaru...');
+          setTimeout(() => {
+            const cleanUrl = window.location.origin + window.location.pathname;
+            window.location.replace(`${cleanUrl}?v=${encodeURIComponent(targetVer)}`);
+          }, 450);
+        } catch (err) {
+          window.location.reload();
+        }
+      }
+
+      function bindAutoUpdate() {
+        const modal = document.getElementById('appUpdateModal');
+        const btnDismiss = document.getElementById('btnDismissUpdate');
+        const btnInstall = document.getElementById('btnInstallUpdate');
+        if (btnDismiss && modal) btnDismiss.addEventListener('click', () => modal.classList.remove('open'));
+        if (btnInstall) btnInstall.addEventListener('click', performAutoUpdate);
+        setTimeout(checkForAppUpdate, 1800);
+      }
+
       bindGoogleAccount();
+      bindAutoUpdate();
       bindReportModal();
       renderAll();
+      // Register offline Service Worker on HTTPS (GitHub Pages / PWA)
+      if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.hostname === 'localhost')) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('./sw.js').catch(() => {});
+        });
+      }
       if ((prefs.pinEnabled && prefs.pinCode) || prefs.biometric) lockAppWithPin();
     })();
   </script>
